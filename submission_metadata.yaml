@@ -1,7 +1,7 @@
 team_name: "Antigravity Engineers"
 contact_email: "contact@antigravity.ai"
 github_repo: "https://github.com/AntigravityEngineers/redrob-ranker"
-sandbox_link: "N/A"
+sandbox_link: "https://huggingface.co/spaces/[YOUR-USERNAME]/redrob-ranker (Pending Deployment)"
 compute_environment: "Windows, Local execution, CPU"
 ai_tools_used: "SentenceTransformers (all-MiniLM-L6-v2) for embeddings. Zero external LLM APIs."
 methodology_summary: "Offline precomputation of embeddings saved as memory-mapped .npy files. Online ranking pipeline uses deterministic heuristic adjustments (honeypot detection, consulting penalty, exact year matches) to modify semantic cosine similarity. Reasoning is generated deterministically without hallucinations to guarantee 100% precision."
