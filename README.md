@@ -1,3 +1,12 @@
+---
+title: Redrob Ranker
+emoji: 🎯
+colorFrom: blue
+colorTo: purple
+sdk: streamlit
+app_file: app.py
+pinned: false
+---
 # RedRob Ranker
 
 An offline + online candidate ranking engine designed for high performance semantic and heuristic candidate evaluation.
