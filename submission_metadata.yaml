@@ -1,12 +1,14 @@
 team_info:
-  team_name: "Antigravity Engineers"
+  team_name: "Jutsu Engineers"
   primary_contact:
-    name: "Yuva Akhil"
-    email: "yuvaakhil18@github.local"
+    name: "C.Yuvaakhil"
+    email: "yuvaakhil2318@gmail.com"
     phone: "+91-0000000000"
   team_members:
-    - "Yuva Akhil"
-    - "Antigravity Agent"
+    - "C.Yuvaakhil (Leader)"
+    - "Bathula Laxman Karthik"
+    - "Abburi Likitha Nalini"
+    - "SATYANARAYANA SANKA"
 
 code_and_reproducibility:
   github_repo: "https://github.com/Yuvaakhil18/Redrob-Intelligent-Candidate-Ranking-System"
