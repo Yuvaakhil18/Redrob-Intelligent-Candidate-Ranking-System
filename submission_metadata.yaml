@@ -16,7 +16,7 @@ code_and_reproducibility:
   reproduce_command: "python rank.py --candidates ./candidates.jsonl.gz --embeddings ./embeddings_output --out ./submission.csv"
 
 compute_environment:
-  platform: "Windows Desktop PC"
+  platform: "Lenovo Legion Slim 5"
   cpu_cores: 16
   ram_gb: 32
   python_version: "3.12.10"
