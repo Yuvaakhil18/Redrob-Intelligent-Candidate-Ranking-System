@@ -7,15 +7,55 @@ sdk: streamlit
 app_file: app.py
 pinned: false
 ---
-# RedRob Intelligent Candidate Ranking System
 
-An enterprise-grade, offline-online hybrid semantic and rule-based candidate discovery and ranking system. Designed to search, normalize, score, and justify candidate recommendations from a pool of 100,000+ applicants under 20 seconds.
+# 🎯 RedRob Intelligent Candidate Ranking System
+
+[![Python](https://img.shields.io/badge/Python-3.12-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-red.svg?logo=streamlit&logoColor=white)](https://huggingface.co/spaces/Yuvaakhil18/redrob-ranker)
+[![NumPy](https://img.shields.io/badge/NumPy-Vectors-blue.svg?logo=numpy&logoColor=white)](https://numpy.org/)
+[![Sentence Transformers](https://img.shields.io/badge/Sentence_Transformers-all--MiniLM--L6--v2-green.svg)](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+[![Hugging Face Space](https://img.shields.io/badge/Hugging%20Face-Space-orange.svg?logo=huggingface&logoColor=white)](https://huggingface.co/spaces/Yuvaakhil18/redrob-ranker)
+
+> **India Runs Data and AI Challenge | Challenge 1 | Hack2Skill × Redrob**
+> An enterprise-grade, offline-online hybrid semantic and rule-based candidate discovery and ranking system. Designed to search, normalize, score, and justify candidate recommendations from a pool of 100,000+ applicants under 20 seconds.
+
+**Live Space Link:** [https://huggingface.co/spaces/Yuvaakhil18/redrob-ranker](https://huggingface.co/spaces/Yuvaakhil18/redrob-ranker)  
+**GitHub Repository:** [https://github.com/Yuvaakhil18/Redrob-Intelligent-Candidate-Ranking-System](https://github.com/Yuvaakhil18/Redrob-Intelligent-Candidate-Ranking-System)
+
+---
+
+## 🏗️ Architecture
+
+The system splits computation into a Phase 1 Offline Precomputation (to generate high-quality text embeddings) and a Phase 2 Online Pipeline (to rank 100K candidates under 20 seconds within a restricted timed CPU window).
+
+```mermaid
+flowchart TD
+  subgraph Offline [Phase 1: Offline Precomputation]
+    A[candidates.jsonl] --> B(all-MiniLM-L6-v2 Embedder)
+    B --> C[candidate_embeddings.npy]
+  end
+  subgraph Online [Phase 2: Online Ranking Pipeline <20s]
+    JD[Job Description] --> D(JD Embedder)
+    D --> E[jd_embedding.npy]
+    C --> F(Memory-Mapped Cosine Similarity)
+    E --> F
+    Raw[Raw Profiles Stream] --> G(Normalization & 5-Dim Scoring)
+    F --> G
+    G --> H{Honeypot Filter}
+    H -- Fraud --> I[Penalty Cap 0.05]
+    H -- Normal --> J[Behavioral Multiplier]
+    I --> K(Deterministic Sorting)
+    J --> K
+    K --> L[Rule-Based Reasoner]
+    L --> Out[submission.csv]
+  end
+```
 
 ---
 
 ## 👥 Team Information: Jutsu Engineers
 * **Team Name:** Jutsu Engineers
-* **Primary Contact:** C.Yuvaakhil (yuvaakhil2318@gmail.com | +91-9849677976)
+* **Primary Contact:** C.Yuvaakhil (yuvaakhil2318@gmail.com)
 * **Team Members:**
   * **C.Yuvaakhil** (Leader)
   * **Bathula Laxman Karthik**
@@ -24,26 +64,15 @@ An enterprise-grade, offline-online hybrid semantic and rule-based candidate dis
 
 ---
 
-## 🏗️ System Architecture & Workflow
+## 🎯 How this maps to the Evaluation Rubric
 
-The system is split into two phases to meet strict CPU processing and time constraints:
-
-### 1. Phase 1: Offline Precomputation (One-Time)
-Before the timed evaluation window, candidate profiles from the JSONL dataset are parsed and embedded:
-* **Text Parser & Embedder:** Extracts career histories and formatted skills to generate 384-dimensional dense vectors using the local `SentenceTransformer` model (`all-MiniLM-L6-v2`).
-* **Binary Store:** Embeddings are stored as a binary NumPy file (`candidate_embeddings.npy`) along with a mapping file (`candidate_ids.txt`) to allow instant, zero-copy memory-mapped loading at runtime.
-* **Precomputation Time:** ~32 minutes.
-
-### 2. Phase 2: Online Ranking Pipeline (Real-Time < 20s)
-Executes within a highly restricted timed CPU window when a Job Description (JD) is received:
-1. **JD Query Embedding:** Embeds the job description text using the same `all-MiniLM-L6-v2` transformer.
-2. **Memory-Mapped Load:** Ingests the precomputed 100K candidate embeddings in fractions of a second (`mmap_mode='r'`).
-3. **Data Ingestion & Normalization:** Standardizes years of experience, skill structures, notice periods, preferred locations, and degrees.
-4. **Cosine Similarity Engine:** Calculates semantic distance between the JD vector and candidate career history vectors.
-5. **Weighted Scoring Matrix:** Combines the semantic and attribute scores across 5 dimensions to produce a base score.
-6. **Behavioral Adjustments:** Multiplies the base score by a platform engagement multiplier (0.4x to 1.2x).
-7. **Honeypot Filter:** Scans profiles for fraud, instantly capping suspicious candidate scores to 0.05.
-8. **Sorting & Explanations:** Deterministically sorts candidates (breaking ties alphabetically by ID) and generates factual, template-driven justifications for the top 100 before writing to `submission.csv`.
+| Criteria | Implementation Strategy |
+| :--- | :--- |
+| **Algorithm Quality & Accuracy** | Hybrid model combining semantic vector similarity with 5 deterministic profile dimensions (Role Match, Skills Validation, Experience Fit, Location/Notice Period, and Education Tier). |
+| **Performance & Speed** | Offline precomputation writes 384-d float32 vectors to disk. The online phase reads them using low-overhead memory-mapping (`mmap_mode='r'`) and computes 100K cosine similarities via vectorized NumPy dot products in $<0.1$ seconds. Total pipeline runs in $\sim19.2$ seconds, far below the 300-second (5 min) limit. |
+| **Behavioral Signals** | Integrates a dynamic engagement multiplier (0.4x to 1.2x) adjusting candidates based on their activity (open to work, response rates, interview completion rates, and verified contacts). |
+| **Data Integrity & Compliance** | Automatically screens profiles against 6 anti-fraud heuristics (e.g. experience discrepancies, unvalidated expert skills). Penalizes suspicious profiles to a minimum score of 0.05. |
+| **No Hallucinations** | Online reasoning runs 100% locally on CPU without generative LLMs. Justifications are built from verified facts (titles, years, skills) via deterministic templates. |
 
 ---
 
@@ -102,15 +131,6 @@ To safeguard ranking integrity, candidate profiles are scanned against six fraud
 6. **Incomplete Profiles:** Profile completeness scores below 40%.
 
 **Action Taken:** If a candidate triggers critical mismatch patterns or accumulates $\ge3$ minor flags, they are classified as a honeypot. Their final score is immediately capped at a flat **0.05**, keeping them at the bottom of the list and keeping your top 100 recommendation list completely clean.
-
----
-
-## ✍️ Non-Hallucinatory Reasoning
-
-To strictly prevent hallucinated justification strings:
-* Generative AI LLMs are **not** used during the real-time online ranking loop.
-* Reasoning statements are composed of **deterministic template rules** populated with verified database facts (e.g., specific job title, company name, years of experience, and validated skills).
-* Output justifications never reference numerical scores to avoid false precision.
 
 ---
 
